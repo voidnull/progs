@@ -1,30 +1,30 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import datetime
 import requests
-import BeautifulSoup
+from bs4 import BeautifulSoup
 import types
 import argparse
 
 def getRateOn(d):
-    url='http://www.x-rates.com/historical/?from=USD&amount=1&date=' + str(d.date())
-    #print 'fetching ', url
+    url='https://www.x-rates.com/historical/?from=USD&amount=1&date=' + str(d.date())
+    #print ('fetching {}'.format(url))
     page = requests.get(url)
-    soup = BeautifulSoup.BeautifulSoup(page.text)
-    a = soup.find('a',{'href':"/graph/?from=USD&to=INR"})
+    soup = BeautifulSoup(page.text, "html.parser")
+    a = soup.find('a',{'href':"http://www.x-rates.com/graph/?from=USD&to=INR"})
     return float(a.text)
 
 '''
 date : yyyy-mm-dd
 '''
 def getFriendlyRate(date=5):
-    if type(date) == types.StringType:
+    if type(date) == str:
         if date.isdigit():
             date = int(date)
         else:
             date = datetime.datetime.strptime(date,'%Y-%m-%d')
 
-    if type(date) == types.IntType:
+    if type(date) == int:
         date = datetime.datetime.today() - datetime.timedelta(days=date)
 
     dayrates = []
@@ -36,12 +36,12 @@ def getFriendlyRate(date=5):
     rates.sort()
     avg = sum(rates[1:-1])/(len(rates)-2)
 
-    print '10 day rates around {} from http://www.x-rates.com'.format(date.strftime('%b %d'))
-    print '-' * 30
+    print('10 day rates around {} from https://www.x-rates.com'.format(date.strftime('%b %d')))
+    print('-' * 30)
     for d in dayrates:
-        print '{} : {}'.format(d[0].strftime('%b %d'),d[1])
-    print '-' * 30
-    print 'Rate: {:5.2f}    min:{:5.2f}  max:{:5.2f}'.format(avg, rates[0],rates[-1])
+        print('{} : {}'.format(d[0].strftime('%b %d'),d[1]))
+    print('-' * 30)
+    print('Rate: {:5.2f}    min:{:5.2f}  max:{:5.2f}'.format(avg, rates[0],rates[-1]))
 
 
 if __name__ == '__main__':
