@@ -154,7 +154,9 @@ class M3U8Downloader:
     def convert(self):
         cmd = 'ffmpeg -y -i {} -acodec copy -vcodec copy {}'.format(self.getTSFileName(), self.getMovieFileName())
         print('converting to {}'.format(self.getMovieFileName()))
-        os.system(cmd)
+        retcode = os.system(cmd)
+        if 0 != retcode:
+            raise Exception('File conversion exited with code: {}'.format(retcode))
         
     def download(self):
         print();
